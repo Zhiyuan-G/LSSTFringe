@@ -1,1 +1,1 @@
-# LSSTF
+# LSST Fringing project
