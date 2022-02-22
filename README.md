@@ -1,1 +1,1 @@
-# LSST Fringing project
+# LSST Fringing project repo
