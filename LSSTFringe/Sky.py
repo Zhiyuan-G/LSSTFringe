@@ -2,7 +2,6 @@ import numpy as np
 import galsim
 from lsst.sims.photUtils import BandpassDict, Sed
 import lsst.sims.skybrightness as skybrightness
-import lsst.sims.coordUtils
 import lsst.sims.photUtils.PhotometricParameters as phopara
 import lsst.sims.utils.ObservationMetaData as ObsMeta
 import lsst.sims.utils as utils
@@ -87,6 +86,15 @@ class Sky():
         countrate_per_arcsec = sed.calcADU(bandpass=bandpass, photParams=photParams)
         exptime = photParams.nexp*photParams.exptime
         return countrate_per_arcsec*photParams.platescale**2/exptime
+    
+    def get_flux(self,skyModel, bandpass):
+
+        wave, spec = skyModel.returnWaveSpec()
+        sed = Sed(wavelen=wave, flambda=spec[0, :])
+
+        flux = sed.calcFlux(bandpass=bandpass)
+    
+        return flux
 
     def set_skyspec(self):
         sm = skybrightness.SkyModel(lowerAtm=True, upperAtm=True,airglow=True,
@@ -103,6 +111,7 @@ class Sky():
         # Turn off upperAtm
         sm.mergedSpec= False
         sm.upperAtm = False
+        sm.airglow = False
         # Compute the spectra
         sm._interpSky()
         CountSkyBg = self.sky_counts_per_sec(skyModel=sm,
@@ -115,8 +124,10 @@ class Sky():
         # Upper Atm spectrum
         for comp in self.compList: setattr(sm, comp, False)
         sm.mergedSpec= False
+
         # Turn on upper atm
         sm.upperAtm = True
+        sm.airglow = True
         # Compute the spectra
         sm._interpSky()
 
@@ -126,12 +137,35 @@ class Sky():
         bandpass.sb = bandpass.sb/detector
         where_are_NaNs = np.isnan(bandpass.sb)
         bandpass.sb[where_are_NaNs] = 0
+        bandpass.phi = None
 
         CountUpperAtm = self.sky_counts_per_sec(skyModel=sm,
             photParams= self.Phot_par(),bandpass=bandpass)
 
 
         return(CountUpperAtm,sm.wave,sm.spec)
+    
+    def flux_upper_atm(self):
+        sm = self.set_skyspec()
+        # Upper Atm spectrum
+        for comp in self.compList: setattr(sm, comp, False)
+        sm.mergedSpec= False
+
+        # Turn on upper atm
+        sm.upperAtm = True
+        sm.airglow = True
+        # Compute the spectra
+        sm._interpSky()
+
+        bandpass=self.Bandpass()
+        # Count the detector QE and AR coating
+        detector = self.detector_throughputs()
+        bandpass.sb = bandpass.sb/detector
+        where_are_NaNs = np.isnan(bandpass.sb)
+        bandpass.sb[where_are_NaNs] = 0
+        bandpass.phi = None
+        FLUX = self.get_flux(skyModel=sm,bandpass = bandpass)
+        return(FLUX)
 
 class OHlines():
     """

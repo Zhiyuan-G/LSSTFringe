@@ -50,8 +50,8 @@ def plot_two(data1,data2, xlabel,ylabel,ls,color,
     ax1.legend(frameon = False,fontsize = legend_font, loc = 'best')
     ax2.legend(frameon = False,fontsize= legend_font, loc = 'best')
 
-    ax1.set_ylabel(label[0],fontsize = 12)
-    ax2.set_ylabel(label[1],fontsize = 12)
+    ax1.set_ylabel(ylabel[0],fontsize = 12)
+    ax2.set_ylabel(ylabel[1],fontsize = 12)
     ax1.set_xlabel(xlabel,fontsize = 12)
 
     if ax_c != False:

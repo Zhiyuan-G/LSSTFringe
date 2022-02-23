@@ -163,6 +163,12 @@ def load_interp (experiment = 'LSST'):
         dbfile = open('data/Interpolator/sky_mono_interpolator.pkl', 'rb')
         interpolator = pickle.load(dbfile)
         dbfile.close()
+        
+    elif experiment == 'HSC':
+        dbfile = open('data/Interpolator/HSC_200si.pkl', 'rb')  
+        HSC_interpolator_200si= pickle.load(dbfile)
+        dbfile.close()
+        
     else:
         dbfile =  open('data/Interpolator/Normal_interpolator.pkl', 'rb')
         interpolator = pickle.load(dbfile)
@@ -171,12 +177,16 @@ def load_interp (experiment = 'LSST'):
 
 
 
-def get_angle(theta_x,theta_y,plot = False):
+def get_angle(theta_x,theta_y,Tele = 'LSST',plot = False):
     '''
     Specify a location on the LSST focal plane, returns the range of
     incident angle from Batoid
     '''
-    telescope = batoid.Optic.fromYaml("LSST_y.yaml")
+    if Tele == 'LSST':
+        telescope = batoid.Optic.fromYaml("LSST_y.yaml")
+    elif Tele == 'HSC':
+        telescope = batoid.Optic.fromYaml("HSC.yaml")
+
     thx = np.deg2rad(theta_x)
     thy = np.deg2rad(theta_y)
     wavelength = 969.21e-9 # meters
@@ -186,9 +196,6 @@ def get_angle(theta_x,theta_y,plot = False):
         theta_x=thx, theta_y=thy,
         nrad=1000, naz=300  #  These control how many parallel rays are created
     )
-    # Make "full trace" of a small random subset of rays for visualization down
-    # below.  This isn't needed generally, it's just for the 3D vis below.
-    tf = telescope.traceFull(rays[np.random.choice(len(rays), 30)])
 
     # Now trace through the system
     telescope.trace(rays)

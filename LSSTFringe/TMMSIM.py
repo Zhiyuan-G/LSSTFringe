@@ -5,7 +5,6 @@
 from numba import jit
 import numba
 import sys
-import numba_scipy
 from numpy import cos, inf, zeros, array, exp, conj, nan, isnan, pi, sin
 import numpy as np
 EPSILON = sys.float_info.epsilon
