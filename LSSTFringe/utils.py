@@ -166,7 +166,7 @@ def load_interp (experiment = 'LSST'):
         
     elif experiment == 'HSC':
         dbfile = open('data/Interpolator/HSC_200si.pkl', 'rb')  
-        HSC_interpolator_200si= pickle.load(dbfile)
+        interpolator= pickle.load(dbfile)
         dbfile.close()
         
     else:
